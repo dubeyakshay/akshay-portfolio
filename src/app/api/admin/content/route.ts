@@ -7,14 +7,22 @@ import {
   discardDraft,
 } from "@/lib/content";
 import type { SiteContent } from "@/lib/types";
+import { hasBlobStorage } from "@/lib/storage";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** GET → full content document (draft + published + status) */
 export async function GET() {
-  const doc = await getDocument();
-  return NextResponse.json(doc);
+  try {
+    const doc = await getDocument();
+    return NextResponse.json(doc);
+  } catch (e) {
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : "Failed to load content" },
+      { status: 500 }
+    );
+  }
 }
 
 /**
@@ -25,7 +33,7 @@ export async function GET() {
  */
 export async function POST(req: NextRequest) {
   // On Vercel the filesystem is read-only — Blob storage is required to save content.
-  if (process.env.VERCEL && !process.env.BLOB_READ_WRITE_TOKEN) {
+  if (process.env.VERCEL && !hasBlobStorage()) {
     return NextResponse.json(
       {
         error:
@@ -42,27 +50,34 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  switch (body.action) {
-    case "save": {
-      if (!body.draft || typeof body.draft !== "object") {
-        return NextResponse.json({ error: "Missing draft" }, { status: 400 });
+  try {
+    switch (body.action) {
+      case "save": {
+        if (!body.draft || typeof body.draft !== "object") {
+          return NextResponse.json({ error: "Missing draft" }, { status: 400 });
+        }
+        const doc = await saveDraft(body.draft);
+        revalidatePath("/preview");
+        return NextResponse.json(doc);
       }
-      const doc = await saveDraft(body.draft);
-      revalidatePath("/preview");
-      return NextResponse.json(doc);
+      case "publish": {
+        const doc = await publishDraft();
+        revalidatePath("/");
+        revalidatePath("/preview");
+        return NextResponse.json(doc);
+      }
+      case "discard": {
+        const doc = await discardDraft();
+        revalidatePath("/preview");
+        return NextResponse.json(doc);
+      }
+      default:
+        return NextResponse.json({ error: "Unknown action" }, { status: 400 });
     }
-    case "publish": {
-      const doc = await publishDraft();
-      revalidatePath("/");
-      revalidatePath("/preview");
-      return NextResponse.json(doc);
-    }
-    case "discard": {
-      const doc = await discardDraft();
-      revalidatePath("/preview");
-      return NextResponse.json(doc);
-    }
-    default:
-      return NextResponse.json({ error: "Unknown action" }, { status: 400 });
+  } catch (e) {
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : "Storage error" },
+      { status: 500 }
+    );
   }
 }
