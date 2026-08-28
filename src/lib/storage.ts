@@ -74,7 +74,10 @@ export async function readContentRaw(): Promise<string | null> {
       const { blobs } = await list({ prefix: key, limit: 1, token });
       const blob = blobs.find((b) => b.pathname === key);
       if (!blob) return null;
-      const res = await fetch(blob.url, { cache: "no-store" });
+      // Cache-bust the Blob CDN: without this, reads can be stale for up to
+      // ~60s after a write, making Publish appear to "not work".
+      const bust = `${blob.url}${blob.url.includes("?") ? "&" : "?"}ts=${Date.now()}`;
+      const res = await fetch(bust, { cache: "no-store" });
       if (!res.ok) return null;
       return res.text();
     } catch (e) {
