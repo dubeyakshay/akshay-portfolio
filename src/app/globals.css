@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #07090d;
+  color: #d6dce8;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(94, 150, 245, 0.35);
+  color: #f2f5fa;
+}
+
+/* ---------- shared primitives ---------- */
+
+@layer components {
+  .glass {
+    background: linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0.055),
+      rgba(255, 255, 255, 0.015)
+    );
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(14px);
+  }
+
+  .glass-strong {
+    background: rgba(11, 14, 20, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    backdrop-filter: blur(18px);
+  }
+
+  .card-hover {
+    transition:
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.35s ease,
+      box-shadow 0.35s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-3px);
+    border-color: rgba(138, 184, 255, 0.28);
+    box-shadow: 0 18px 48px -22px rgba(59, 118, 224, 0.35);
+  }
+
+  .chip {
+    @apply inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[13px] font-medium text-ink-200 transition-colors;
+  }
+  .chip:hover {
+    @apply border-accent-400/40 text-ink-100;
+  }
+
+  .section-label {
+    @apply font-mono text-xs uppercase tracking-[0.22em] text-accent-300/90;
+  }
+
+  .heading-xl {
+    @apply text-3xl font-semibold tracking-tight text-ink-100 sm:text-4xl;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-accent-500 px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_30px_-10px_rgba(59,118,224,0.7)] transition-all hover:bg-accent-400 hover:shadow-[0_10px_36px_-10px_rgba(94,150,245,0.8)] active:translate-y-px;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-ink-100 transition-all hover:border-white/25 hover:bg-white/[0.08] active:translate-y-px;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-ink-300 transition-colors hover:text-ink-100;
+  }
+
+  .input-field {
+    @apply w-full rounded-lg border border-white/10 bg-base-900 px-3 py-2 text-sm text-ink-100 placeholder-ink-500 outline-none transition-colors focus:border-accent-400/60 focus:ring-1 focus:ring-accent-400/40;
+  }
+
+  .admin-label {
+    @apply mb-1 block text-xs font-medium uppercase tracking-wider text-ink-400;
+  }
+}
+
+/* subtle grid backdrop for hero */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 35%, transparent 78%);
+}
+
+/* reveal-on-scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal,
+  .card-hover,
+  .animate-fade-up,
+  .animate-fade-in {
+    transition: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* thin scrollbars in admin panels */
+.thin-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+}
