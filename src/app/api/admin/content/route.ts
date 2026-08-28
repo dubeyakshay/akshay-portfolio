@@ -62,7 +62,8 @@ export async function POST(req: NextRequest) {
       }
       case "publish": {
         const doc = await publishDraft();
-        revalidatePath("/");
+        // "layout" scope also revalidates generateMetadata (SEO title etc.)
+        revalidatePath("/", "layout");
         revalidatePath("/preview");
         return NextResponse.json(doc);
       }
