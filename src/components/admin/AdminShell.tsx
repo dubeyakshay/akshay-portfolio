@@ -66,6 +66,51 @@ export default function AdminShell() {
     setUnsaved(true);
   }, []);
 
+  // Warn before closing the tab with unsaved changes
+  useEffect(() => {
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (unsaved) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [unsaved]);
+
+  // Autosave: 3s after the last edit, silently persist the draft
+  const autosaveTimer = useRef<ReturnType<typeof setTimeout>>();
+  const docRef = useRef(doc);
+  docRef.current = doc;
+  useEffect(() => {
+    if (!unsaved) return;
+    clearTimeout(autosaveTimer.current);
+    autosaveTimer.current = setTimeout(async () => {
+      const current = docRef.current;
+      if (!current) return;
+      try {
+        const res = await fetch("/api/admin/content", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "save", draft: current.draft }),
+        });
+        if (res.ok) {
+          const next = (await res.json()) as ContentDocument;
+          // keep the user's in-progress edits; just update workflow metadata
+          setDoc((prev) =>
+            prev
+              ? { ...prev, updatedAt: next.updatedAt, publishedAt: next.publishedAt, dirty: next.dirty }
+              : prev
+          );
+          setUnsaved(false);
+        }
+      } catch {
+        /* autosave is best-effort; manual Save still available */
+      }
+    }, 3000);
+    return () => clearTimeout(autosaveTimer.current);
+  }, [unsaved, doc]);
+
   async function post(body: object) {
     const res = await fetch("/api/admin/content", {
       method: "POST",
@@ -172,7 +217,11 @@ export default function AdminShell() {
                 Portfolio Admin
               </p>
               <p className="font-mono text-[10.5px] leading-tight text-ink-500">
-                {dirty ? "● unsaved / unpublished changes" : "✓ in sync with live site"}
+                {unsaved
+                  ? "● editing… autosaves in 3s"
+                  : dirty
+                    ? "● draft saved — not yet published"
+                    : "✓ in sync with live site"}
               </p>
             </div>
           </div>
