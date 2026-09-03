@@ -1,5 +1,6 @@
 import type { SiteContent } from "@/lib/types";
 import Reveal from "./Reveal";
+import CopyButton from "./CopyButton";
 
 export default function Contact({ content }: { content: SiteContent }) {
   const { contact, profile } = content;
@@ -90,6 +91,9 @@ export default function Contact({ content }: { content: SiteContent }) {
                           {c.value}
                         </span>
                       </span>
+                      {(c.key === "email" || c.key === "phone") && (
+                        <CopyButton value={c.value} label={c.label} />
+                      )}
                     </a>
                   ))}
                 </div>
