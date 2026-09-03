@@ -11,6 +11,7 @@ import Certifications from "./Certifications";
 import Principles from "./Principles";
 import Contact from "./Contact";
 import Footer from "./Footer";
+import JsonLd from "./JsonLd";
 
 const SECTION_COMPONENTS: Record<
   SectionId,
@@ -30,6 +31,7 @@ const SECTION_COMPONENTS: Record<
 export default function PortfolioPage({ content }: { content: SiteContent }) {
   return (
     <div className="relative">
+      <JsonLd content={content} />
       <Navbar name={content.profile.name} sections={content.sections} />
       <main>
         <Hero content={content} />
