@@ -126,6 +126,47 @@ body {
   }
 }
 
+/* ---------- print styles: clean PDF/paper output for recruiters ---------- */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #1a2233 !important;
+  }
+  header,
+  nav,
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost,
+  .bg-grid {
+    display: none !important;
+  }
+  .glass,
+  .glass-strong {
+    background: #ffffff !important;
+    border: 1px solid #d8dee9 !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  section {
+    page-break-inside: avoid;
+    padding: 16px 0 !important;
+  }
+  h1, h2, h3, p, li, span {
+    color: #1a2233 !important;
+  }
+  .section-label {
+    color: #2c5cbb !important;
+  }
+  a {
+    color: #2c5cbb !important;
+    text-decoration: none;
+  }
+}
+
 /* thin scrollbars in admin panels */
 .thin-scroll::-webkit-scrollbar {
   width: 6px;
