@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    // pdf-parse (pdfjs) must not be bundled by webpack — load it natively in Node
-    serverComponentsExternalPackages: ["pdf-parse"],
+    // keep the PDF extractor out of the webpack bundle — load it natively in Node
+    serverComponentsExternalPackages: ["unpdf"],
   },
 };
 
