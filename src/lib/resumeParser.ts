@@ -39,14 +39,12 @@ export type ParsedResume = {
 // ---------------------------------------------------------------- text extraction
 
 export async function extractPdfText(buffer: Buffer): Promise<string> {
-  const { PDFParse } = await import("pdf-parse");
-  const parser = new PDFParse({ data: new Uint8Array(buffer) });
-  try {
-    const result = await parser.getText();
-    return (result.text ?? "").replace(/\r/g, "");
-  } finally {
-    await parser.destroy().catch(() => {});
-  }
+  // unpdf is serverless-friendly: no DOM APIs (DOMMatrix etc.) required,
+  // unlike pdf-parse/pdfjs which break on Vercel's Node runtime.
+  const { extractText, getDocumentProxy } = await import("unpdf");
+  const pdf = await getDocumentProxy(new Uint8Array(buffer));
+  const { text } = await extractText(pdf, { mergePages: true });
+  return (text ?? "").replace(/\r/g, "");
 }
 
 // ---------------------------------------------------------------- rule-based engine
