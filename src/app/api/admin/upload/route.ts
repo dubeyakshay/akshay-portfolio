@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { storeFile, deleteFile } from "@/lib/storage";
+import { storeFile, deleteFile, hasBlobStorage } from "@/lib/storage";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,7 +15,7 @@ const MAX_PDF_BYTES = 15 * 1024 * 1024; // 15 MB
  */
 export async function POST(req: NextRequest) {
   // On Vercel the filesystem is read-only — Blob storage is required.
-  if (process.env.VERCEL && !process.env.BLOB_READ_WRITE_TOKEN) {
+  if (process.env.VERCEL && !hasBlobStorage()) {
     return NextResponse.json(
       {
         error:

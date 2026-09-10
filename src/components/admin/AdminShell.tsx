@@ -14,8 +14,10 @@ import MediaManager from "./editors/MediaManager";
 import ContactEditor from "./editors/ContactEditor";
 import SeoEditor from "./editors/SeoEditor";
 import SectionsEditor from "./editors/SectionsEditor";
+import ImportTool from "./editors/ImportTool";
 
 const TABS = [
+  { id: "import", label: "Import (Resume/JD)", icon: "M8 10V2M5 4.5L8 1.5 11 4.5M2.5 10v3.5h11V10" },
   { id: "profile", label: "Profile", icon: "M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2.5 14a5.5 5.5 0 0 1 11 0" },
   { id: "about", label: "About", icon: "M8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12zM8 7.5V11M8 5v.01" },
   { id: "snapshot", label: "Snapshot", icon: "M2 3.5h12v9H2zM5.5 6.5h5M5.5 9h3" },
@@ -312,6 +314,15 @@ export default function AdminShell() {
         {/* editor pane */}
         <main className="min-w-0 flex-1 p-4 pb-24 sm:p-6 lg:p-8">
           <div className="mx-auto max-w-3xl space-y-5">
+            {tab === "import" && (
+              <ImportTool
+                onApplied={(next) => {
+                  setDoc(next);
+                  setUnsaved(false);
+                }}
+                showToast={showToast}
+              />
+            )}
             {tab === "profile" && <ProfileEditor draft={draft} update={updateDraft} />}
             {tab === "about" && <AboutEditor draft={draft} update={updateDraft} />}
             {tab === "snapshot" && <SnapshotEditor draft={draft} update={updateDraft} />}
